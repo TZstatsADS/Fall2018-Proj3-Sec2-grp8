@@ -1,9 +1,37 @@
-#############################################################
-### Construct features and responses for training images###
-#############################################################
+############################################################
+### Construct features and responses for training images ###
+############################################################
 
 ### Authors: Chengliang Tang/Tian Zheng
 ### Project 3
+
+getNeighbor <- function(pos, LR_padded){
+  ### return a vector length of 8 for the 8 neighbor pixels
+  
+  ### input: pos: a row vector from sampled indexes in LR 
+  ###        + LR_padded: a padded single channel LR image matrix
+  ### output: a vector of (eight neighbor pixels - central pixel)
+  
+  x <- pos[1]
+  y <- pos[2]
+  neighbor <- as.vector(LR_padded[x:(x+2), y:(y+2)])
+  neighbor <- neighbor - neighbor[5]
+  return(neighbor[-5])
+}
+
+getSubPixel <- function(pos, HR, LR){
+  ### return a vector length of 4 for corresponding 4 sub-pixels
+  
+  ### input: pos: a row vector from sampled indexes in LR 
+  ###        + HR: a single channel HR image matrix
+  ###        + LR: a single channel LR image matrix
+  ### output: a vector of (four sub pixels in HR image - central pixel)
+  
+  x <- pos[1]
+  y <- pos[2]
+  sub_pixel <- as.vector(HR[(2*x-1):(2*x), (2*y-1):(2*y)])
+  return(sub_pixel - LR[x, y])
+}
 
 feature <- function(LR_dir, HR_dir, n_points=1000){
   
@@ -25,14 +53,24 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
   for(i in 1:n_files){
     imgLR <- readImage(paste0(LR_dir,  "img_", sprintf("%04d", i), ".jpg"))
     imgHR <- readImage(paste0(HR_dir,  "img_", sprintf("%04d", i), ".jpg"))
+    
     ### step 1. sample n_points from imgLR
+    sampled <- arrayInd(sample(length(imgLR@.Data[, , 1]), n_points), dim(imgLR@.Data)[1:2])
     
     ### step 2. for each sampled point in imgLR,
-    
-        ### step 2.1. save (the neighbor 8 pixels - central pixel) in featMat
-        ###           tips: padding zeros for boundary points
-    
-        ### step 2.2. save the corresponding 4 sub-pixels of imgHR in labMat
+    for (j in 1:3){
+      
+      ### step 2.1. save (the neighbor 8 pixels - central pixel) in featMat
+      ###           tips: padding zeros for boundary points
+      padded <- rbind(NA, cbind(NA, imgLR@.Data[, , j], NA), NA)
+      featMat_j <- t(apply(sampled, 1, getNeighbor, LR_padded = padded))
+      featMat_j[is.na(featMat_j)] <- 0
+      featMat[((i-1)*n_points+1):(i*n_points), , j] <- featMat_j
+      
+      ### step 2.2. save the corresponding 4 sub-pixels of imgHR in labMat
+      labMat[((i-1)*n_points+1):(i*n_points), , j] <- 
+        t(apply(sampled, 1, getSubPixel, HR = imgHR@.Data[, , j], LR = imgLR@.Data[, , j]))
+    }
     
     ### step 3. repeat above for three channels
       
