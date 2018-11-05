@@ -1,9 +1,25 @@
-#########################################################
+###########################################################
 ### Train a classification model with training features ###
-#########################################################
+###########################################################
 
-### Author: Chengliang Tang
 ### Project 3
+
+getModel <- function(integer, dat_train, label_train, n.trees, shrink) {
+  c1 <- (integer-1) %% 4 + 1
+  c2 <- (integer-c1) %/% 4 + 1
+  featMat <- dat_train[, , c2]
+  labMat <- label_train[, c1, c2]
+  fit_gbm <- gbm.fit(x = featMat, y = labMat,
+                     n.trees = n.trees,
+                     shrinkage = shrink,
+                     distribution = "gaussian",
+                     interaction.depth = 1, 
+                     bag.fraction = 0.5,
+                     keep.data = FALSE,
+                     verbose = FALSE)
+  best_iter <- gbm.perf(fit_gbm, method = "OOB", plot.it = FALSE)
+  return(list(fit = fit_gbm, shrink = shrink, iter = best_iter))
+}
 
 
 train <- function(dat_train, label_train, par=NULL){
@@ -16,35 +32,26 @@ train <- function(dat_train, label_train, par=NULL){
   ### Output: a list for trained models
   
   ### load libraries
-  library("gbm")
+  library(gbm)
+  library(plyr)
+  library(doMC)
   
+  registerDoMC(2) # or however many cores you have access to
   ### creat model list
   modelList <- list()
   
-  ### Train with gradient boosting model
+  ### train with gradient boosting model
   if(is.null(par)){
-    depth <- 3
+    n.trees <- 100
+    shrink <- 0.001
   } else {
-    depth <- par$depth
+    n.trees <- par$n.trees
+    shrink <- par$shrink
   }
   
-  ### the dimension of response arrat is * x 4 x 3, which requires 12 classifiers
+  ### the dimension of response array is * x 4 x 3, which requires 12 classifiers
   ### this part can be parallelized
-  for (i in 1:12){
-    ## calculate column and channel
-    c1 <- (i-1) %% 4 + 1
-    c2 <- (i-c1) %/% 4 + 1
-    featMat <- dat_train[, , c2]
-    labMat <- label_train[, c1, c2]
-    fit_gbm <- gbm.fit(x=featMat, y=labMat,
-                       n.trees=200,
-                       distribution="gaussian",
-                       interaction.depth=depth, 
-                       bag.fraction = 0.5,
-                       verbose=FALSE)
-    best_iter <- gbm.perf(fit_gbm, method="OOB", plot.it = FALSE)
-    modelList[[i]] <- list(fit=fit_gbm, iter=best_iter)
-  }
+  modelList <- llply(as.list(1:12),.fun = getModel, dat_train, label_train, n.trees, shrink, .parallel = T)
   
   return(modelList)
 }

@@ -2,10 +2,9 @@
 ### Cross Validation ###
 ########################
 
-### Author: Chengliang Tang
 ### Project 3
 
-cv.function <- function(X.train, y.train, d, K){
+cv.function <- function(X.train, y.train, par, K){
   
   n <- dim(y.train)[1]
   n.fold <- floor(n/K)
@@ -18,11 +17,10 @@ cv.function <- function(X.train, y.train, d, K){
     test.data <- X.train[s == i, ,]
     test.label <- y.train[s == i, ,]
     
-    par <- list(depth=d)
     fit <- train(train.data, train.label, par)
-    pred <- test(fit, test.data)  
+    pred <- test(fit, test.data)
     cv.error[i] <- mean((pred - test.label)^2)  
     
   }			
-  return(c(mean(cv.error),sd(cv.error)))
+  return(c(mean(cv.error), sd(cv.error)))
 }

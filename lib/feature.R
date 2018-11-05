@@ -2,12 +2,11 @@
 ### Construct features and responses for training images ###
 ############################################################
 
-### Authors: Chengliang Tang/Tian Zheng
 ### Project 3
 
 getNeighbor <- function(pos, LR_padded){
-  ### return a vector length of 8 for the 8 neighbor pixels
   
+  ### return a vector length of 8 for the 8 neighbor pixels
   ### input: pos: a row vector from sampled indexes in LR 
   ###        + LR_padded: a padded single channel LR image matrix
   ### output: a vector of (eight neighbor pixels - central pixel)
@@ -20,8 +19,8 @@ getNeighbor <- function(pos, LR_padded){
 }
 
 getSubPixel <- function(pos, HR, LR){
-  ### return a vector length of 4 for corresponding 4 sub-pixels
   
+  ### return a vector length of 4 for corresponding 4 sub-pixels
   ### input: pos: a row vector from sampled indexes in LR 
   ###        + HR: a single channel HR image matrix
   ###        + LR: a single channel LR image matrix
@@ -36,7 +35,6 @@ getSubPixel <- function(pos, HR, LR){
 feature <- function(LR_dir, HR_dir, n_points=1000){
   
   ### Construct process features for training images (LR/HR pairs)
-  
   ### Input: a path for low-resolution images + a path for high-resolution images 
   ###        + number of points sampled from each LR image
   ### Output: an .RData file contains processed features and responses for the images
