@@ -139,8 +139,8 @@ feat_train <- dat_train$feature
 label_train <- dat_train$label
 
 # Ramdomly choose 500 images for a K-fold cross validation
-#img_cv <- sort(sample(1500, 500, replace = FALSE)) # full model
-img_cv <- sort(sample(1200, 500, replace = FALSE)) # local test
+img_cv <- sort(sample(1500, 500, replace = FALSE)) # full model
+#img_cv <- sort(sample(1200, 500, replace = FALSE)) # local test
 ind_cv <- unlist(lapply(img_cv, function(x) {((x-1)*1000+1) : (x*1000)}))
 feat_train_cv <- feat_train[ind_cv, ,]
 label_train_cv <- label_train[ind_cv, ,]
@@ -189,8 +189,7 @@ if(run.cv){
 # if(run.cv){
 #   best_ind <- which.min(err_cv[,1])
 # }
-# according to one stand error rule
-
+# according to one standard error rule
 best_ind <- 8
 best_ntrees_ind <- (best_ind-1)%%length(shrinkage_values)+1
 best_shrink_ind <- (best_ind-best_ntrees_ind)%/%length(shrinkage_values)+1
@@ -247,18 +246,3 @@ cat("Time for training model=", tm_train[3], "s \n")
 load("../output/tm_test.RData")
 cat("Time for super-resolution=", tm_test[3], "s \n")
 ```
-
-### Model performance
-
-Calculate the PSNR of genreated high resolution images from test images
-```{r PSNR on test images}
-source("../lib/getPSNR.R")
-test_true_HR_dir <- paste(test_dir, "HR_true/", sep="")
-test_perf <- getPSNR(test_true_HR_dir, test_HR_dir)
-```
-
-Visualize test performance
-```{r}
-boxplot(test_perf)
-```
-
