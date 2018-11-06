@@ -8,22 +8,19 @@ This is the report for our baseline model. In this `main.Rmd`, we use Boosted De
 
 **Note: please use Mac OS system** to reproduce this file on your computer successfully.
 
-```{r,message=FALSE,warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 # load required packages
-if(!require("EBImage")){
+if(!require("EBImage")) {
   source("https://bioconductor.org/biocLite.R")
   biocLite("EBImage")
 }
-
-if(!require("gbm")){
-  install.packages("gbm")
+if(!require("gbm")) { 
+  install.packages("gbm") 
 }
-
-if(!require("plyr")){
+if(!require("plyr")) { 
   install.packages("plyr")
 }
-
-if(!require("doMC")){
+if(!require("doMC")) {
   install.packages("doMC")
 }
 
@@ -62,11 +59,11 @@ In this chunk, we have a set of controls for the evaluation experiments.
 + (T/F) process features for test set
 
 ```{r exp_setup}
-run.cv=TRUE # run cross-validation on the training set
+run.cv <- TRUE # run cross-validation on the training set
 K <- 5  # number of CV folds
-run.feature.train=TRUE # process features for training set
-run.test=TRUE # run evaluation on an independent test set
-run.feature.test=TRUE # process features for test set
+run.feature.train <- TRUE # process features for training set
+run.test <- TRUE # run evaluation on an independent test set
+run.feature.test <- TRUE # process features for test set
 ```
 
 Using cross-validation or independent test set evaluation, we compare the performance of models with different specifications. In this file, we use GBM with depth one and compare between different values of `shrinkage` and `number of trees`. In the following chunk, we list, in a vector, setups  corresponding to models that we will compare - three `shrinkage` values and three `numbers of trees` values. Therefore, we will compare $3\times3=9$ models in the cross validation part.
@@ -141,7 +138,7 @@ label_train <- dat_train$label
 
 # Ramdomly choose 500 images for a K-fold cross validation
 img_cv <- sort(sample(1500, 500, replace = FALSE)) # full model
-#img_cv <- sort(sample(1200, 500, replace = FALSE)) # local test
+# img_cv <- sort(sample(1200, 500, replace = FALSE)) # for local test
 ind_cv <- unlist(lapply(img_cv, function(x) {((x-1)*1000+1) : (x*1000)}))
 feat_train_cv <- feat_train[ind_cv, ,]
 label_train_cv <- label_train[ind_cv, ,]
@@ -186,14 +183,11 @@ if(run.cv){
 
 * Choose the "best" parameter value according to one standard error rule
 ```{r best_model}
-#model_best=model_values[1]
-# if(run.cv){
-#   best_ind <- which.min(err_cv[,1])
-# }
 # according to one standard error rule
-best_ind <- 8
-best_ntrees_ind <- (best_ind-1)%%length(shrinkage_values)+1
-best_shrink_ind <- (best_ind-best_ntrees_ind)%/%length(shrinkage_values)+1
+thres <- sum(err_cv[which.min(err_cv[,1]),])
+best_ind <- which(err_cv[,1] == max(err_cv[err_cv[,1] <= thres, 1]))
+best_ntrees_ind <- (best_ind-1)%%length(shrinkage_values) + 1
+best_shrink_ind <- (best_ind-best_ntrees_ind)%/%length(shrinkage_values) + 1
 par_best <- list(shrink=shrinkage_values[best_shrink_ind],
                  n.trees=ntrees_values[best_ntrees_ind])
 print(par_best)
@@ -202,7 +196,7 @@ print(par_best)
 * Train the model with the entire training set using the selected model (model parameter) via cross-validation.
 ```{r final_train,warning=FALSE}
 set.seed(2018)
-tm_train=NA
+tm_train <- NA
 tm_train <- system.time(fit_train <- train(feat_train, label_train, par_best))
 save(fit_train, file="../output/fit_train.RData")
 save(tm_train, file="../output/tm_train.RData")
@@ -223,7 +217,7 @@ test_dir <- "../data/test_set/" # This will be modified for different data sets.
 test_LR_dir <- paste(test_dir, "LR/", sep="")
 test_HR_dir <- paste(test_dir, "HR/", sep="")
 
-tm_test=NA
+tm_test <- NA
 if(run.test){
   load(file="../output/fit_train.RData")
   tm_test <- system.time(superResolution(test_LR_dir, test_HR_dir, fit_train))
