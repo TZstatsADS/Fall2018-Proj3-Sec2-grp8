@@ -85,20 +85,9 @@ for (shrink in shrinkage_values){
     }
 ```
 
-### Step 2: import training images class labels.
-
-We provide extra information of image label: car (0), flower (1), market (2). These labels are not necessary for your model.
-
-```{r train_label}
-extra_label <- read.csv(train_label_path, colClasses=c("NULL", NA, NA))
-image_file_numbers <- split(extra_label$Image, extra_label$Label)
-image_files0 <- gsub(".jpg","",image_file_numbers[["0"]])
-image_files1 <- gsub(".jpg","",image_file_numbers[["1"]])
-image_files2 <- gsub(".jpg","",image_file_numbers[["2"]])
-```
 
 
-### Step 3: construct features and responses
+### Step 2: construct features and responses
 
 `feature.R` should be the wrapper for all your feature engineering functions and options. The function `feature( )` should have options that correspond to different scenarios for your project and produces an R object that contains features and responses that are required by all the models you are going to evaluate later. 
 
@@ -121,7 +110,7 @@ save(tm_feature_train, file="../output/tm_feature_train.RData")
 ```
 
 
-### Step 4: Train a classification model with training images
+### Step 3: Train a classification model with training images
 Call the train model and test model from library. 
 
 `train.R` and `test.R` should be wrappers for all your model training steps and your classification/prediction steps. 
@@ -220,7 +209,7 @@ save(tm_train, file="../output/tm_train.RData")
 ```
 
 
-### Step 5: Super-resolution for test images
+### Step 4: Super-resolution for test images
 Feed the final training model with the completely holdout testing data. 
 
 * `superResolution.R`
