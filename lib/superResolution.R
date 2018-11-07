@@ -4,6 +4,20 @@
 
 ### Project 3
 
+getNeighbor <- function(pos, LR_padded){
+  
+  ### return a vector length of 8 for the 8 neighbor pixels
+  ### input: pos: a row vector from sampled indexes in LR 
+  ###        + LR_padded: a padded single channel LR image matrix
+  ### output: a vector of (eight neighbor pixels - central pixel)
+  
+  x <- pos[1]
+  y <- pos[2]
+  neighbor <- as.vector(LR_padded[x:(x+2), y:(y+2)])
+  neighbor <- neighbor - neighbor[5]
+  return(neighbor[-5])
+}
+
 applySuperResolution <- function(file_num, LR_dir, HR_dir, modelList){
   imgLR <- readImage(paste0(LR_dir,  "img", "_", sprintf("%04d", file_num), ".jpg"))
   pathHR <- paste0(HR_dir,  "img", "_", sprintf("%04d", file_num), ".jpg")
@@ -35,7 +49,7 @@ applySuperResolution <- function(file_num, LR_dir, HR_dir, modelList){
     imgHR[, ((1:nc)*2), j] <- matrix(as.vector(t(predMat[, 3:4, j]+center)), ncol = nc)
   }
 
-  imgHR <- Image(imgHR, colormode=Color)
+  imgHR <- Image(imgHR, colormode = Color)
   writeImage(imgHR, files = pathHR)
 }
 
