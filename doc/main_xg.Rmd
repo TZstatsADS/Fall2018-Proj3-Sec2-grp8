@@ -14,11 +14,11 @@ if(!require("EBImage")) {
   source("https://bioconductor.org/biocLite.R")
   biocLite("EBImage")
 }
-if(!require("gbm")) { 
-  install.packages("gbm") 
+if(!require("xgboost")) { 
+  install.packages("xgboost") 
 }
 if(!require("plyr")) { 
-  install.packages("xgboost")
+  install.packages("plyr")
 }
 if(!require("doMC")) {
   install.packages("doMC")
