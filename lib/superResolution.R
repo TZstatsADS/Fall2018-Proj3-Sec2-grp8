@@ -61,8 +61,11 @@ superResolution <- function(LR_dir, HR_dir, modelList){
   
   ### load libraries
   library(EBImage)
+  library(plyr)
+  library(doMC)
+  registerDoMC(2)
   n_files <- length(list.files(LR_dir))
-  
   ### read LR/HR image pairs
-  lapply(1:n_files, applySuperResolution, LR_dir=LR_dir, HR_dir=HR_dir, modelList=modelList)
+  llply(as.list(1:n_files), applySuperResolution, LR_dir=LR_dir, 
+        HR_dir=HR_dir, modelList=modelList, .parallel = T)
 }
